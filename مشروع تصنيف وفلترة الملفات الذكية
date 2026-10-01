@@ -1,0 +1,25 @@
+import streamlit as st
+import os
+
+st.set_page_config(page_title="مساعد الملفات الذكي", layout="wide")
+
+st.title("📂 أداة تحليل وتصنيف المستندات والملفات الذكية")
+st.write("أهلاً بك! هذا نموذج تجريبي لرفع الملفات والبحث فيها بذكاء.")
+
+# صندوق رفع الملفات
+uploaded_files = st.file_uploader("قم برفع عينة من الملفات (مثل PDF أو صور)", accept_multiple_files=True)
+
+if uploaded_files:
+    st.success(f"تم رفع {len(uploaded_files)} ملف بنجاح!")
+    
+    st.subheader("📋 قائمة الملفات المرفوعة:")
+    for file in uploaded_files:
+        st.write(f"- {file.name} (الحجم: {file.size} بايت)")
+        
+    query = st.text_input("اكتب طلبك هنا (مثال: اعطني الملفات الإنجليزية، أو ملفات تطوير الذات):")
+    if query:
+        st.info("جاري تحليل الطلب والبحث في الملفات...")
+        # هنا سنضع منطق الذكاء الاصطناعي لاحقاً
+        st.write("✨ النتيجة: تم فحص الملفات المرفوعة بناءً على طلبك.")
+else:
+    st.info("الرجاء رفع بعض الملفات للبدء بالتجربة.")
