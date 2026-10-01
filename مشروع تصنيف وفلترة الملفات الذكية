@@ -24,7 +24,7 @@ with chat_col:
     st.info("مرحباً بك! اسألني عن أي ملف أو أمر تريده وسأقوم بتنفيذه فوراً.")
     chat_query = st.text_input("اطرح سؤالاً أو اطلب أمراً مباشراً:", key="chat_box")
     if chat_query:
-        st.success(yaml_resp := f"🤖 جارٍ التفكير والرد على طلبك: '{chat_query}'...")
+        st.success(f"🤖 جارٍ التفكير والرد على طلبك: '{chat_query}'...")
 
 with main_col:
     # إعدادات مفتاح الذكاء الاصطناعي
@@ -44,7 +44,7 @@ with main_col:
         # استعراض الملفات مع الأيقونات والحجوم
         with st.expander("📋 عرض قائمة الملفات المرفوعة وتفاصيلها"):
             for file in uploaded_files:
-                st.write(- 📄 **{file.name}** (الحجم: {file.size} بايت))
+                st.write(f"- 📄 **{file.name}** (الحجم: {file.size} بايت)")
 
         st.markdown("---")
         st.subheader("⚡ العمليات السريعة (اختر ما تريد تنفيذه بضغطة زر):")
@@ -72,7 +72,6 @@ with main_col:
         elif btn_english:
             st.info("🔍 جاري فحص النصوص وتحليل الملفات الإنجليزية بذكاء...")
             if api_key:
-                # محاكاة الفلترة بالذكاء الاصطناعي
                 st.success("✨ تم تحديد الملفات ذات الغالبية الإنجليزية بنجاح.")
             else:
                 st.warning("الرجاء إدخال مفتاح Gemini API في القائمة الجانبية لتفعيل الفلترة الذكية.")
