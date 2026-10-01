@@ -1,25 +1,50 @@
 import streamlit as st
 import os
+from pypdf import PdfReader
+import google.generativeai as genai
 
 st.set_page_config(page_title="مساعد الملفات الذكي", layout="wide")
 
 st.title("📂 أداة تحليل وتصنيف المستندات والملفات الذكية")
-st.write("أهلاً بك! هذا نموذج تجريبي لرفع الملفات والبحث فيها بذكاء.")
+st.write("أهلاً بك! هذا النموذج التجريبي لرفع الملفات والبحث وتصنيفها بذكاء.")
+
+# إدخال مفتاح الذكاء الاصطناعي (Gemini API Key)
+st.sidebar.header("إعدادات الذكاء الاصطناعي")
+api_key = st.sidebar.text_input("أدخل مفتاح Google Gemini API:", type="password")
+
+if api_key:
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-2.5-flash')
 
 # صندوق رفع الملفات
-uploaded_files = st.file_uploader("قم برفع عينة من الملفات (مثل PDF أو صور)", accept_multiple_files=True)
+uploaded_files = st.file_uploader("قم برفع عينة من الملفات (PDF)", type=["pdf"], accept_multiple_files=True)
 
 if uploaded_files:
     st.success(f"تم رفع {len(uploaded_files)} ملف بنجاح!")
     
-    st.subheader("📋 قائمة الملفات المرفوعة:")
+    # استخراج النصوص من ملفات الـ PDF المرفوعة
+    all_files_text = {}
     for file in uploaded_files:
-        st.write(f"- {file.name} (الحجم: {file.size} بايت)")
-        
+        try:
+            reader = PdfReader(file)
+            text = ""
+            for page in reader.pages:
+                if page.extract_text():
+                    text += page.extract_text() + "\n"
+            all_files_text[file.name] = text
+        except Exception as e:
+            all_files_text[file.name] = f"خطأ في قراءة الملف: {e}"
+
     query = st.text_input("اكتب طلبك هنا (مثال: اعطني الملفات الإنجليزية، أو ملفات تطوير الذات):")
-    if query:
-        st.info("جاري تحليل الطلب والبحث في الملفات...")
-        # هنا سنضع منطق الذكاء الاصطناعي لاحقاً
-        st.write("✨ النتيجة: تم فحص الملفات المرفوعة بناءً على طلبك.")
+    
+    if query and api_key:
+        with st.spinner("جاري تحليل الملفات والبحث بذكاء..."):
+            prompt = f"لديك الملفات التالية بمحتوياتها:\n{all_files_text}\n\n بناءً على هذه الملفات، أجب على طلب المستخدم بدقة:\n{query}"
+            response = model.generate_content(prompt)
+            
+            st.subheader("✨ نتيجة البحث والتحليل الذكي:")
+            st.write(response.text)
+    elif query and not api_key:
+        st.warning("الرجاء إدخال مفتاح Gemini API في القائمة الجانبية أولاً!")
 else:
-    st.info("الرجاء رفع بعض الملفات للبدء بالتجربة.")
+    st.info("الرجاء رفع ملفات PDF للبدء بالتجربة.")
